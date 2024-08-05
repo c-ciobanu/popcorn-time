@@ -1,11 +1,11 @@
-name: Create and publish Docker images
+name: Deploy
 
 on:
   push:
     branches: ['master']
 
 jobs:
-  build-and-push-image:
+  build-and-push-images:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -47,3 +47,11 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}-web:latest
+
+  deploy:
+    needs: build-and-push-images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Coolify
+        run: |
+          curl -H 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}' ${{ secrets.COOLIFY_WEBHOOK }}
